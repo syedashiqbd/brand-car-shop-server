@@ -27,8 +27,9 @@ async function run() {
 
     // database collection name
     const productCollection = client.db('carHub').collection('products');
+    const cartProductCollection = client.db('carHub').collection('cartProduct');
 
-    // to get all product to UI
+    // to get all product
     app.get('/product', async (req, res) => {
       const cursor = productCollection.find();
       const result = await cursor.toArray();
@@ -39,6 +40,20 @@ async function run() {
     app.post('/product', async (req, res) => {
       const newProduct = req.body;
       const result = await productCollection.insertOne(newProduct);
+      res.send(result);
+    });
+
+    // to get cart product
+    app.get('/cartProduct', async (req, res) => {
+      const cursor = cartProductCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // to post or insert cart product to database
+    app.post('/cartProduct', async (req, res) => {
+      const newCartProduct = req.body;
+      const result = await cartProductCollection.insertOne(newCartProduct);
       res.send(result);
     });
 
@@ -73,7 +88,14 @@ async function run() {
       );
       res.send(result);
     });
-    // to get and put product update to database (end)
+
+    // to delete by id from database
+    app.delete('/cartProduct/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id };
+      const result = await cartProductCollection.deleteOne(query);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
